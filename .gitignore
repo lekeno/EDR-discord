@@ -36,6 +36,9 @@ build/Release
 node_modules/
 jspm_packages/
 
+#private data
+.data/
+
 # TypeScript v1 declaration files
 typings/
 
@@ -74,3 +77,5 @@ typings/
 
 # FuseBox cache
 .fusebox/
+watch.json
+package.json
