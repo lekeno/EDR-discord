@@ -12,6 +12,7 @@ const discord = require("discord.js");
 const jokes = require("./jokes");
 const statioport = require("./station");
 const edsmurls = require("./edsmurls");
+const audit = require("./audit");
 
 module.exports = class EDRBot {
     constructor(guilds) {
@@ -71,7 +72,8 @@ module.exports = class EDRBot {
         }
         
         for (var server in this.servedDiscords) {
-            stats += ` - ${server}: ${JSON.stringify(this.servedDiscords[server])}\n`;
+            let needsaudit = acl.authorizedGuild(this.servedDiscords[server]['id']) ? "" : "[AUDIT?]";
+            stats += ` - ${server}: ${JSON.stringify(this.servedDiscords[server])}${needsaudit}}\n`;
         }
         console.log(stats);
     }
