@@ -12,7 +12,7 @@ module.exports = {
 
     station: function(sysID, sysName, stationID, stationName) {
         if (isNaN(sysID) || isNaN(stationID)) return "";
-        if (typeof name != 'string' || typeof stationName != 'string') return "";
+        if (typeof sysName != 'string' || typeof stationName != 'string') return "";
         let URL = `${process.env.EDSM_STATION_PREFIX}${sysID}/name/${encodeURIComponent(utils.sanitize(sysName))}/details/idS/${stationID}/nameS/${encodeURIComponent(utils.sanitize(stationName))}`;
         return `[${utils.sanitize(stationName)}](${URL})`;
     },
