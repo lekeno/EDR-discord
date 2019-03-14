@@ -17,7 +17,7 @@ module.exports = class Galaxy {
 
         this.sysRadCache = new LRU({max: parseInt(process.env.CACHE_MAX_ITEMS), maxAge: parseInt(process.env.SYSTEM_MAX_AGE)});
         try {
-            caching.read(process.env.SYTEMS_RADIUS_CACHE, this.sysRadCache);
+            caching.read(process.env.SYSTEMS_RADIUS_CACHE, this.sysRadCache);
         } catch (error) {
             console.error(error);
         }
