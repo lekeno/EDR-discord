@@ -18,7 +18,7 @@ module.exports = class EDRBot {
         this.born = Date.now();
         this.cacheHitRate = {"total": 0, "hits": 0};
         
-        this.cache = LRU({max: process.env.CACHE_MAX_ITEMS, maxAge: process.env.CACHE_MAX_AGE});
+        this.cache = new LRU({max: parseInt(process.env.CACHE_MAX_ITEMS), maxAge: parseInt(process.env.CACHE_MAX_AGE)});
         try {
             caching.read(process.env.CMDRS_CACHE, this.cache);
         } catch (error) {

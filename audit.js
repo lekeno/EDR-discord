@@ -1,4 +1,5 @@
 'use strict';
+const request = require("request-promise");
 
 module.exports = {
     newguild: function (guild) {

@@ -8,27 +8,19 @@ const systems = require("./systems");
 module.exports = class Galaxy {
     constructor () {
         this.systems = new systems();
-        this.sysCache = LRU({max: process.env.CACHE_MAX_ITEMS, maxAge: process.env.SYSTEM_MAX_AGE })
+        this.sysCache = new LRU({max: parseInt(process.env.CACHE_MAX_ITEMS), maxAge: parseInt(process.env.SYSTEM_MAX_AGE)});
         try {
             caching.read(process.env.SYSTEMS_CACHE, this.sysCache);
         } catch (error) {
             console.error(error);
         }
 
-        this.sysRadCache = LRU({max: process.env.CACHE_MAX_ITEMS, maxAge: process.env.SYSTEM_MAX_AGE })
+        this.sysRadCache = new LRU({max: parseInt(process.env.CACHE_MAX_ITEMS), maxAge: parseInt(process.env.SYSTEM_MAX_AGE)});
         try {
             caching.read(process.env.SYTEMS_RADIUS_CACHE, this.sysRadCache);
         } catch (error) {
             console.error(error);
         }
-    }
-
-    inBubble (system_name) {
-        return distance(system_name, 'Sol') <= 500; 
-    }
-
-    inColonia (system_name) {
-        return distance(system_name, 'Colonia') <= 500;
     }
 
     async system (name) {

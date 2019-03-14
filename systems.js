@@ -6,7 +6,7 @@ const request = require("request-promise");
 
 module.exports = class Systems {
   constructor () {
-    this.staCache = LRU({ max: process.env.CACHE_MAX_ITEMS, maxAge: process.env.STATION_MAX_AGE });
+    this.staCache = new LRU({ max: parseInt(process.env.CACHE_MAX_ITEMS), maxAge: parseInt(process.env.STATION_MAX_AGE) });
     try {
       caching.read(process.env.STATIONS_CACHE, this.staCache);
     } catch (error) {
