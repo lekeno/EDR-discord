@@ -111,7 +111,7 @@ module.exports = class EDRBot {
         let dated = new Date();
         if (profile.handleEDRResponse(response, dated, channel)) {
             this.cache.set(cmdrname, {"date": dated, "response": response, "timestamp": Date.now()});
-            caching.write(process.env.CMDR_CACHE, this.cache);
+            caching.write(process.env.CMDRS_CACHE, this.cache);
         }
         channel.stopTyping();
     }
