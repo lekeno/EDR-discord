@@ -1,6 +1,6 @@
 "use strict";
 const express = require('express');
-const http = require("http");
+const http = require("https");
 
 module.exports = class KeepAlive {
   constructor () {
@@ -14,7 +14,7 @@ module.exports = class KeepAlive {
     
     this.app.listen(process.env.PORT);
     setInterval(() => {
-      http.get(process.env.HOST);
+      https.get(process.env.HOST);
     }, 280000);
   }
 }
