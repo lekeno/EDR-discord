@@ -16,7 +16,8 @@ module.exports = class Station {
 
     hasService(service) {
         if (!service) return false;
-        return (!this.info['otherServices'] || !this.info['otherServices'].includes(service));
+        if (!this.info['otherServices']) return false;
+        return this.info['otherServices'].includes(service);
     }
 
     distanceToArrival() {
