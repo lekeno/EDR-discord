@@ -10,6 +10,10 @@ const app = new keepalive();
 
 app.setup();
 
+process.on('uncaughtException', function (err) {
+  console.log(err);
+});
+
 client.on("ready", () => {
   bot.init(client.guilds || []);
   let activity = activities.random();
