@@ -281,6 +281,13 @@ module.exports = class EDRBot {
         var channel = message.channel;
         if (!channel) return;
         
+        if (jokes.isItAprilFoolDay() && utils.randomIntExcl(100) > 60) {
+            if (jokes.gotOne("aprilfool", cmd)) {
+                channel.send(jokes.randomIfAny("aprilfool", cmd));         
+                return;
+            }
+        }
+        
         switch(cmd) {
             case 'uptime':
                 this.uptime(channel);

@@ -17,6 +17,11 @@ module.exports = {
         if (! this.gotOne(entity, shorthandCMD)) return;
         let options = JOKES[canonicalize(entity)][shorthandCMD];
         return options[utils.randomIntExcl(options.length)];
+    },
+
+    isItAprilFoolDay: function() {
+        var now = new Date();
+        return (now.getMonth() == 3 && now.getDate() == 1);
     }
 }
 
