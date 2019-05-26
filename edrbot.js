@@ -507,7 +507,7 @@ New feature(s): ${process.env.NEW_FEATURES}\n\n\
 function checkGuild(guild) {
     if (!guild || !guild.id) return false;
 
-    if (acl.blockedGuild(guild)) {
+    if (acl.blockedGuild(guild.id)) {
         // Leaving blocked guilds
         guild.leave().then(g => console.log(`Left the guild ${g}`)).catch(console.error);  
         return false;
