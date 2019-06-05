@@ -65,7 +65,7 @@ module.exports = class EDRBot {
     }
 
     stats() {
-        let stats = `EDR Discord Bot - stats:\n`;
+        let stats = `EDR Discord Bot - stats:\n# of servers: ${Object.keys(this.servedDiscords).length}\n`;
         
         if (this.cacheHitRate["total"] > 0) {
             stats += `Cache: ${this.cacheHitRate["hits"]/this.cacheHitRate["total"]} (#= ${this.cacheHitRate["total"]})\n`;
