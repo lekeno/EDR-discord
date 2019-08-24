@@ -56,8 +56,16 @@ module.exports = class EDRBot {
     join(guild) {
         if (!checkGuild(guild)) return;
         if (!guild || !guild.name) return;    
-        this.servedDiscords[guild.name] = {"msgs": 0, "cmds": 0, "ignored": 0, "id": guild.id, "ownerID": guild.ownerID};
         
+        if (acl.blockedGuild(guild.id)) {
+            // Leaving blocked guilds
+            console.log(`Blocked guild: {$guild.id}`);
+            guild.leave().then(g => console.log(`Left the guild ${g}`)).catch(console.error);  
+            return;
+        }
+      
+        this.servedDiscords[guild.name] = {"msgs": 0, "cmds": 0, "ignored": 0, "id": guild.id, "ownerID": guild.ownerID};
+      
         if (! acl.authorizedGuild(guild.id)) {
             audit.newguild(guild);
             return;
@@ -77,8 +85,8 @@ module.exports = class EDRBot {
         }
         console.log(stats);
     }
-
-    async who(cmdrname, channel, uid) {
+  
+    async who(cmdrname, channel, uid, attachmentAllowed) {
         channel.startTyping();
         let cached = this.cache.get(cmdrname);
         this.cacheHitRate["total"] += 1;
@@ -86,7 +94,7 @@ module.exports = class EDRBot {
             let delta = Date.now() - cached["timestamp"];
             if (delta < 1000*60*60*24) {
                 this.cacheHitRate["hits"] += 1;
-                profile.handleEDRResponse(cached["response"], cached["date"], channel);
+                profile.handleEDRResponse(cached["response"], cached["date"], channel, attachmentAllowed);
                 channel.stopTyping();
                 return;
             }
@@ -109,12 +117,13 @@ module.exports = class EDRBot {
             response = await inara.lookup(cmdrname);
         }
         let dated = new Date();
-        if (profile.handleEDRResponse(response, dated, channel)) {
+        if (profile.handleEDRResponse(response, dated, channel, attachmentAllowed)) {
             this.cache.set(cmdrname, {"date": dated, "response": response, "timestamp": Date.now()});
             caching.write(process.env.CMDRS_CACHE, this.cache);
         }
         channel.stopTyping();
     }
+
 
     async searchMT(poi, scDistance, channel) {
         let radius = 40;
@@ -240,7 +249,7 @@ module.exports = class EDRBot {
             message.guild.leave().then(g => console.log(`Left the guild ${g}`)).catch(console.error);  
             return;
         }
-
+      
         let guildname = message.guild ? message.guild.name : "N/A"; 
         if (guildname == "N/A") return; // Not from a guild
 
@@ -262,7 +271,7 @@ module.exports = class EDRBot {
         var cmd = args[0];
         args = args.splice(1);
         
-        let cmdlist = [ "uptime", "ping", "help", "version", "stats", "who", "w", "if", "distance", "d", "matTraders", "matTrader", "mat", "traders", "mt" ];
+        let cmdlist = [ "uptime", "ping", "help", "version", "stats", "who", "w", "if", "distance", "d", "matTraders", "matTrader", "mat", "traders", "mt"];
         if (!cmdlist.includes(cmd)) {
             return; // not a recognized command
         }
@@ -280,13 +289,18 @@ module.exports = class EDRBot {
 
         var channel = message.channel;
         if (!channel) return;
-        
+      
+            
+      
         if (jokes.isItAprilFoolDay() && utils.randomIntExcl(100) > 60) {
             if (jokes.gotOne("aprilfool", cmd)) {
-                channel.send(jokes.randomIfAny("aprilfool", cmd));         
+              var joke = jokes.randomIfAny("aprilfool", cmd)
+              console.log(`Sent joke: ${joke}`);
+                channel.send(joke);         
                 return;
             }
         }
+
         
         switch(cmd) {
             case 'uptime':
@@ -325,7 +339,8 @@ module.exports = class EDRBot {
 
                 let cmdrname = args.join(' ').toLowerCase();
                 if (utils.unexpectedCmdrName(cmdrname)) return;
-                this.who(cmdrname, channel, uid);
+                let attachmentAllowed = channel.permissionsFor(message.guild.me).has("ATTACH_FILES");
+                this.who(cmdrname, channel, uid, attachmentAllowed);
                 break;
             
             case 'matTraders':
