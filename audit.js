@@ -4,7 +4,7 @@ const request = require("request-promise");
 module.exports = {
     newguild: function (guild) {
         if (!guild) return;
-        let info = `Owner: ${guild.owner? guild.owner.displayName : 'N/A'}`;
+        let info = `Owner: ${guild.owner? guild.owner.displayName : 'N/A'} @ ${guild.ownerID}`;
         
         let channels = guild.channels || [];
         info += "\nChannels: ";

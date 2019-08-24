@@ -79,3 +79,4 @@ typings/
 .fusebox/
 watch.json
 package.json
+package-lock.json

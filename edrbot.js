@@ -35,7 +35,7 @@ module.exports = class EDRBot {
         for (var [key, guild] of guilds) {
             if (!checkGuild(guild)) continue;
             if (!guild || !guild.name) continue;
-            this.servedDiscords[guild.name] = {"msgs": 0, "cmds": 0, "ignored": 0, "id": guild.id};
+            this.servedDiscords[guild.name] = {"msgs": 0, "cmds": 0, "ignored": 0, "id": guild.id, "ownerID": guild.ownerID};
         };
     }
 
@@ -49,14 +49,14 @@ module.exports = class EDRBot {
         for (var [key, guild] of guilds) {
             if (!checkGuild(guild)) continue;
             if (!guild || !guild.name) continue;
-            this.servedDiscords[guild.name] = {"msgs": 0, "cmds": 0, "ignored": 0, "id": guild.id};
+            this.servedDiscords[guild.name] = {"msgs": 0, "cmds": 0, "ignored": 0, "id": guild.id, "ownerID": guild.ownerID};
         };
     }
 
     join(guild) {
         if (!checkGuild(guild)) return;
         if (!guild || !guild.name) return;    
-        this.servedDiscords[guild.name] = {"msgs": 0, "cmds": 0, "ignored": 0, "id": guild.id};
+        this.servedDiscords[guild.name] = {"msgs": 0, "cmds": 0, "ignored": 0, "id": guild.id, "ownerID": guild.ownerID};
         
         if (! acl.authorizedGuild(guild.id)) {
             audit.newguild(guild);
