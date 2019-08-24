@@ -1,9 +1,10 @@
 'use strict';
 const discord = require("discord.js"); 
 const utils = require("./utils");
+const legal = require("./edrlegal");
 
 module.exports = {
-    handleEDRResponse: function (response, date, channel) {
+    handleEDRResponse: function (response, date, channel, attachmentAllowed) {
       if (response.statusCode == 404) {
         channel.send("No info on file.\nPlease use the full in-game name.");
         return true;
@@ -76,9 +77,13 @@ module.exports = {
       }
       
       if (response.body["legalRecords"]) {
-        let section = this.legalSection(response.body["legalRecords"]);
-        if (section) {
-          embed.addField(section["name"], section["value"]);
+        let legalvizu = this.legalsection(response.body["legalRecords"]);
+        if (legalvizu && attachmentAllowed) {
+          const attachment = new discord.Attachment(legalvizu.toBuffer(), "legal.png");
+          embed.attachFile(attachment);
+          embed.setImage('attachment://legal.png');
+        } else {
+          embed.addField("**EDR Legal**", "EDR can now show graphs of clean/wanted scans and max bounties on a per month basis. This feature requires the 'attach files' permissions.");
         }
       }
     
@@ -94,6 +99,11 @@ module.exports = {
       embed.addField("**Support EDR & Inara**", `Install [EDR](${process.env.EDR_PLUGIN_URL}) to get the same info in-game and send intel.\n[Invite](${process.env.EDR_DISCORD_URL}) this bot to your own discord server.\n\nToken of appreciation\n[Lavian Brandy for EDR](${process.env.EDR_DONATION_URL})\n[Azure Milk for Inara](${process.env.INARA_DONATION_URL})`, true);       
       channel.send(`Intel about ${utils.sanitize(response.body["name"])}`, {embed});
       return true;
+    },
+  
+    legalsection: function (legalRecords) {
+      var edrlegal = new legal(legalRecords);
+      return edrlegal.visualization();
     },
 
     alignmentSection: function (alignment) {
