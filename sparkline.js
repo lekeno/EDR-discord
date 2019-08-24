@@ -94,7 +94,7 @@ var self = module.exports = {
             x = x + xstep;
         }
 
-        return canvas.toDataURL();
+        return canvas;
     },
 
 
