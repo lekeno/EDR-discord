@@ -13,11 +13,13 @@ const jokes = require("./jokes");
 const statioport = require("./station");
 const edsmurls = require("./edsmurls");
 const audit = require("./audit");
+const throttler = require("./throttler");
 
 module.exports = class EDRBot {
     constructor(guilds) {
         this.born = Date.now();
         this.cacheHitRate = {"total": 0, "hits": 0};
+        this.throttle = new throttler();
         
         this.cache = new LRU({max: parseInt(process.env.CACHE_MAX_ITEMS), maxAge: parseInt(process.env.CACHE_MAX_AGE)});
         try {
@@ -112,10 +114,25 @@ module.exports = class EDRBot {
         };
 
         let response = await request(options);
-        
         if (response.statusCode == 404) {
-            response = await inara.lookup(cmdrname);
-        }
+            if (this.throttle.shouldHoldOff()) {
+                channel.send("Comms jammed.\nPlease retry in a while.");
+                channel.stopTyping(); 
+                return;
+            } else {
+                response = await inara.lookup(cmdrname);            
+                if (response["statusCode"] == 400 || response["statusCode"] == 408) {
+                    this.throttle.backoff();
+                    channel.send("Comms jammed.\nPlease retry in a few minutes.");
+                    channel.stopTyping(); 
+                    return;
+                } else {
+                    this.throttle.clear();
+                }
+                
+            }
+        }  
+        
         let dated = new Date();
         if (profile.handleEDRResponse(response, dated, channel, attachmentAllowed)) {
             this.cache.set(cmdrname, {"date": dated, "response": response, "timestamp": Date.now()});
@@ -252,6 +269,8 @@ module.exports = class EDRBot {
       
         let guildname = message.guild ? message.guild.name : "N/A"; 
         if (guildname == "N/A") return; // Not from a guild
+        let uid = message.author ? message.author.id : 0;
+        let uname = message.author ? message.author.username : 0;
 
         if (this.servedDiscords[guildname]) {
             this.servedDiscords[guildname]["msgs"] += 1;
@@ -261,11 +280,11 @@ module.exports = class EDRBot {
 
         if (message.author.bot) return;
 
-        let uid = message.author ? message.author.id : 0;
+        
         if (!uid || !message.content || message.content.length < 2 || !message.content.startsWith('!')) {
-            return; // no author id, no message, too short for a command, not prefixed with command character
+          return; // no author id, no message, too short for a command, not prefixed with command character
         }
-
+  
         var args = message.content.substring(1).split(/ +/);
         if (!args) return;
         var cmd = args[0];
@@ -290,7 +309,6 @@ module.exports = class EDRBot {
         var channel = message.channel;
         if (!channel) return;
       
-            
       
         if (jokes.isItAprilFoolDay() && utils.randomIntExcl(100) > 60) {
             if (jokes.gotOne("aprilfool", cmd)) {
@@ -301,7 +319,6 @@ module.exports = class EDRBot {
             }
         }
 
-        
         switch(cmd) {
             case 'uptime':
                 this.uptime(channel);
@@ -457,13 +474,13 @@ New feature(s): ${process.env.NEW_FEATURES}\n\n\
 
     async distance(srcSys, dstSys, channel) {
         let src = await this.galaxy.system(srcSys);
-        if (src == false) {
+        if (src == false || src == undefined) {
             channel.send(`System ${srcSys} is unknown to EDSM. Please check the spelling.`);
             return;
         }
     
         let dst = await this.galaxy.system(dstSys);   
-        if (dst == false) {
+        if (dst == false || dst == undefined) {
             channel.send(`System ${dstSys} is unknown to EDSM. Please check the spelling.`);
             return;
         }

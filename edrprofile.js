@@ -83,7 +83,7 @@ module.exports = {
           embed.attachFile(attachment);
           embed.setImage('attachment://legal.png');
         } else {
-          embed.addField("**EDR Legal**", "EDR can now show graphs of clean/wanted scans and max bounties on a per month basis. This feature requires the 'attach files' permissions.");
+          embed.addField("**EDR Legal**", "EDR can now show graphs of clean/wanted scans and max bounties on a per month basis. This feature requires the 'attach files' permissions.");  
         }
       }
     
