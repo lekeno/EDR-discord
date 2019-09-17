@@ -545,5 +545,11 @@ function checkGuild(guild) {
         return false;
     }
 
+    if (acl.blockedUser(guild.ownerID)) {
+        // Leaving guilds owned by blocked users
+        guild.leave().then(g => console.log(`Left the guild ${g} which is owned by a blocked user.`)).catch(console.error);  
+        return false;
+    }
+
     return true;
 }
