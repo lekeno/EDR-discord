@@ -97,6 +97,120 @@ var self = module.exports = {
         return canvas;
     },
 
+    shipsgraph: function (ships, totalShips) {
+        var canvas = createCanvas(600, Math.max(16*Math.min(ships.length,10) + 30, 130));
+        var ctx = canvas.getContext('2d');
+
+        var height = 16,
+            width = 92,
+            total = ships.length,
+            barwidth = 16,
+            ystep = 16,
+            x = 0,
+            y = 0,
+            w = 0,
+            h = 12,
+            i;
+
+        ctx.fillStyle = 'rgb(247, 247, 247)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'end';
+        ctx.fillStyle = 'rgb(132, 134, 137)';
+        ctx.fillText('Sighted in', 95, 16);
+        ctx.font = '9px sans-serif';
+        y = 32;
+        var rolesStats = {};
+        var pvpStats = {"PvP": 0.0, "PvE": 0.0};
+
+        for (i = 0; i < total; i = i + 1) {
+            if (i < 10) {
+                ctx.fillStyle = 'rgb(132, 134, 137)';
+                ctx.fillText(utils.shipShortName(ships[i][0]), 95, y);
+                var dx = 104, dy=5;
+                w = ships[i][1]/totalShips * width;
+                ctx.beginPath();
+                ctx.rect(x+dx, y-ystep/2.0-h/2.0+dy, w, h);
+                console.log(`l:${ships[i][0]}, v:${ships[i][1]}, x:${x+dx}, y:${y-h}, w: ${w}, h: ${h}`);
+                ctx.fillStyle = 'rgb(10, 139, 214)';
+                ctx.fill();
+                ctx.closePath();
+                y = y + ystep;
+            }
+            
+            var roles = utils.shipRolesWeight(ships[i][0]);
+            for (var role in roles) {
+                rolesStats[role] = (rolesStats[role] || 0) + roles[role] * ships[i][1];
+            }
+
+            var pvpWeight = utils.shipPvPWeight(ships[i][0]);
+            pvpStats["PvP"] += pvpWeight["PvP"] * ships[i][1];
+            pvpStats["PvE"] += pvpWeight["PvE"] * ships[i][1];
+        }
+
+        pvpStats["PvP"] /= totalShips;
+        pvpStats["PvE"] /= totalShips;
+
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'end';
+        ctx.fillStyle = 'rgb(132, 134, 137)';
+        ctx.fillText('Roles*', 279, 16);
+        ctx.font = '9px sans-serif';
+        y = 32;
+        const roleOrdered = ["Combat", "Transport", "Exploration", "Passenger", "Multi-role", "Other"];
+        for (var i in roleOrdered) {
+            var role = roleOrdered[i];
+            ctx.fillText(role, 279, y);
+            var dx = 288, dy=5;
+            if (role in rolesStats) {
+                if (role == "Combat") {
+                    ctx.fillStyle = 'rgb(0, 179, 247)';
+                } else {
+                    ctx.fillStyle = 'rgb(10, 139, 214)';
+                }
+                w = rolesStats[role]/totalShips * width;
+                ctx.beginPath();
+                ctx.rect(x+dx, y-ystep/2.0-h/2.0+dy, w, h);
+                console.log(`l:${role}, v:${rolesStats[role]}, x:${x+dx}, y:${y-h}, w: ${w}, h: ${h}`);
+                ctx.fill();
+                ctx.closePath();
+            }
+            ctx.fillStyle = 'rgb(132, 134, 137)';
+            y = y + ystep;
+        }
+
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'end';
+        ctx.fillStyle = 'rgb(132, 134, 137)';
+        ctx.fillText('Style*', 469, 16);
+        ctx.font = '9px sans-serif';
+        y = 32;
+        ctx.fillStyle = 'rgb(132, 134, 137)';
+        ctx.fillText('PvP', 469, y);
+        ctx.fillStyle = 'rgb(132, 134, 137)';
+        ctx.fillText('PvE', 469, y+ystep);
+        ctx.fillStyle = 'rgb(132, 134, 137)';
+        var dx = 478, dy=5;
+        w = pvpStats["PvP"] * width;
+        ctx.beginPath();
+        ctx.rect(x+dx, y-ystep/2.0-h/2.0+dy, w, h);
+        ctx.fillStyle = 'rgb(0, 179, 247)';
+        ctx.fill();
+        ctx.closePath();
+        y = y + ystep;
+        w = pvpStats["PvE"] * width;
+        ctx.beginPath();
+        ctx.rect(x+dx, y-ystep/2.0-h/2.0+dy, w, h);
+        ctx.fillStyle = 'rgb(10, 139, 214)';
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.font = 'italic 9px sans-serif';
+        ctx.fillStyle = 'rgb(132, 134, 137)';
+        ctx.textAlign = 'end';
+        ctx.fillText('*: speculative assessment solely based on ship types', canvas.width-12, canvas.height-12);
+        return canvas;
+    },
 
     _wantedcolor: function (bounty) {        
         if (bounty <= 1000) {
@@ -116,6 +230,6 @@ var self = module.exports = {
         } else if (bounty <= 10000000000) {
             return 'rgb(255,0,0)';
         }
-        return `rgb(155, 0, 250)`;
+        return 'rgb(155, 0, 250)';
     }
 };
