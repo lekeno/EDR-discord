@@ -2,6 +2,7 @@
 const discord = require("discord.js"); 
 const utils = require("./utils");
 const legal = require("./edrlegal");
+const presence = require("./edrpresence");
 
 module.exports = {
     handleEDRResponse: function (response, date, channel, attachmentAllowed) {
@@ -86,6 +87,17 @@ module.exports = {
           embed.addField("**EDR Legal**", "EDR can now show graphs of clean/wanted scans and max bounties on a per month basis. This feature requires the 'attach files' permissions.");  
         }
       }
+
+      if (response.body["presenceStats"]) {
+        let presencevizu = this.presencesection(response.body["presenceStats"]);
+        if (presencevizu && attachmentAllowed) {
+          const attachment = new discord.Attachment(presencevizu.toBuffer(), "presence.png");
+          embed.attachFile(attachment);
+          embed.setImage('attachment://presence.png');
+        } else {
+          embed.addField("**EDR Presence**", "EDR can now show graphs of ships a cmdr is most sighted in. This feature requires the 'attach files' permissions.");  
+        }
+      }
     
       if (response.body["lastSighting"] && response.body["lastSighting"]["system"]) {
         let section = this.sightedSection(response.body["lastSighting"]);
@@ -104,6 +116,11 @@ module.exports = {
     legalsection: function (legalRecords) {
       var edrlegal = new legal(legalRecords);
       return edrlegal.visualization();
+    },
+
+    presencesection: function (presenceStats) {
+      var edrpresence = new presence(presenceStats);
+      return edrpresence.visualization();
     },
 
     alignmentSection: function (alignment) {
