@@ -3,6 +3,7 @@ const discord = require("discord.js");
 const utils = require("./utils");
 const legal = require("./edrlegal");
 const presence = require("./edrpresence");
+const { createCanvas, Image } = require('canvas');
 
 module.exports = {
     handleEDRResponse: function (response, date, channel, attachmentAllowed) {
@@ -77,12 +78,11 @@ module.exports = {
           }
       }
       
+      var canvases = [];
       if (response.body["legalRecords"]) {
         let legalvizu = this.legalsection(response.body["legalRecords"]);
         if (legalvizu && attachmentAllowed) {
-          const attachment = new discord.Attachment(legalvizu.toBuffer(), "legal.png");
-          embed.attachFile(attachment);
-          embed.setImage('attachment://legal.png');
+          canvases.push(legalvizu);
         } else {
           embed.addField("**EDR Legal**", "EDR can now show graphs of clean/wanted scans and max bounties on a per month basis. This feature requires the 'attach files' permissions.");  
         }
@@ -91,13 +91,33 @@ module.exports = {
       if (response.body["presenceStats"]) {
         let presencevizu = this.presencesection(response.body["presenceStats"]);
         if (presencevizu && attachmentAllowed) {
-          const attachment = new discord.Attachment(presencevizu.toBuffer(), "presence.png");
-          embed.attachFile(attachment);
-          embed.setImage('attachment://presence.png');
+          canvases.push(presencevizu);
         } else {
           embed.addField("**EDR Presence**", "EDR can now show graphs of ships a cmdr is most sighted in. This feature requires the 'attach files' permissions.");  
         }
       }
+
+      if (canvases.length) {
+        let w = Math.max.apply(Math, canvases.map(function(o) { return o.width; }));
+        let h = canvases.reduce(function(a, b) { return a + b.height; }, 0);
+        var vizu = createCanvas(w, h);
+        var ctx = vizu.getContext('2d');
+        ctx.fillStyle = 'rgb(247, 247, 247)';
+        ctx.fillRect(0, 0, vizu.width, vizu.height);
+        let dh = 0;
+        for (var i in canvases) {
+          var img = new Image;
+          var canvas = canvases[i]
+          img.src = canvas.toBuffer();
+          ctx.drawImage(img, 0, dh);
+          dh += canvas.height;
+        }
+        
+        const attachment = new discord.Attachment(vizu.toBuffer(), "vizu.png");
+        embed.attachFile(attachment);
+        embed.setImage('attachment://vizu.png');
+      }
+
     
       if (response.body["lastSighting"] && response.body["lastSighting"]["system"]) {
         let section = this.sightedSection(response.body["lastSighting"]);
