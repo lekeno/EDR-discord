@@ -178,6 +178,6 @@ module.exports = {
   }
 }
 
-const SHIPROLES = utils.requireIfExists(process.env.SHIPROLES, {});
-const SHIPSTYLES = utils.requireIfExists(process.env.SHIPSTYLES, {});
-const SHIPSHORTNAMES = utils.requireIfExists(process.env.SHIPSHORTNAMES, {});
+const SHIPROLES = module.exports.requireIfExists(process.env.SHIPROLES, {});
+const SHIPSTYLES = module.exports.requireIfExists(process.env.SHIPSTYLES, {});
+const SHIPSHORTNAMES = module.exports.requireIfExists(process.env.SHIPSHORTNAMES, {});
