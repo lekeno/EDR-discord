@@ -128,7 +128,7 @@ module.exports = {
       if (response.body["patreon"]) {
           embed.addField("**EDR Patreon**", utils.sanitize(response.body["patreon"]), true);
       }
-      embed.addField("**Support EDR & Inara**", `Install [EDR](${process.env.EDR_PLUGIN_URL}) to get the same info in-game and send intel.\n[Invite](${process.env.EDR_DISCORD_URL}) this bot to your own discord server.\n\nToken of appreciation\n[Lavian Brandy for EDR](${process.env.EDR_DONATION_URL})\n[Azure Milk for Inara](${process.env.INARA_DONATION_URL})`, true);       
+      embed.addField("**Support EDR & Inara**", `Install [EDR](${process.env.EDR_PLUGIN_URL}) to get the same info in-game and send intel.\n[Invite](${process.env.EDR_DISCORD_URL}) this bot to your own discord server.\n\nToken of appreciation\nLavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\nAzure Milk for Inara: via [Paypal](${process.env.INARA_DONATION_URL})`, true);       
       channel.send(`Intel about ${utils.sanitize(response.body["name"])}`, {embed});
       return true;
     },
