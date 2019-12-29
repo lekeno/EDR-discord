@@ -345,7 +345,7 @@ module.exports = class EDRBot {
             case 'w':
                 if (! acl.authorizedGuild(guildid)) {
                     audit.newguild(message.guild);
-                    channel.send(`Thanks for your interest in EDR. You should get access to all the features shortly, i.e. 1~2 day(s). Ping @LeKeno#8484 if needed.\nIn the meantime, for performance and privacy reasons, please set a role on the EDR bot to restrict it to a dedicated channel.`);
+                    channel.send(`Thanks for your interest in EDR. You should get access to all the features shortly, i.e. up to a week or so. Ping @LeKeno#8484 if needed.\nIn the meantime, for performance and privacy reasons, please set a role on the EDR bot to restrict it to a dedicated channel.`);
                     return;
                 }
 
