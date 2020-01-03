@@ -280,8 +280,9 @@ module.exports = class EDRBot {
 
         if (message.author.bot) return;
 
-        
-        if (!uid || !message.content || message.content.length < 2 || !message.content.startsWith('!')) {
+        let prefix = (guildid != process.env.GUILD_WITH_CONFLICTING_BOT) ? "!" : ":";
+
+        if (!uid || !message.content || message.content.length < 2 || !message.content.startsWith(prefix)) {
           return; // no author id, no message, too short for a command, not prefixed with command character
         }
   
@@ -329,7 +330,7 @@ module.exports = class EDRBot {
                 break;
             
             case 'help':
-                this.help(channel);
+                this.help(channel, prefix);
                 break;
             
             case 'version':
@@ -350,7 +351,7 @@ module.exports = class EDRBot {
                 }
 
                 if (args.length == 0) {
-                    channel.send("Usage: `!w cmdr_name`");          
+                    channel.send(`Usage: \`${prefix}w cmdr_name\``);          
                     return;
                 }
 
@@ -366,7 +367,7 @@ module.exports = class EDRBot {
             case 'traders':
             case 'mt':
                 if (args.length == 0) {
-                    channel.send(`Usage: \`!${cmd} system_name\` or \`!${cmd} system_name < 5000\` to specify the maximal supercruise distance`);          
+                    channel.send(`Usage: \`${prefix}${cmd} system_name\` or \`${prefix}${cmd} system_name < 5000\` to specify the maximal supercruise distance`);          
                     return;
                 }
                 let params = args.join(' ').split(" < ");
@@ -385,7 +386,7 @@ module.exports = class EDRBot {
 
             case 'if':
                 if (args.length == 0) {
-                    channel.send(`Usage: \`!${cmd} system_name\` or \`!${cmd} system_name < 5000\` to specify the maximal supercruise distance`);          
+                    channel.send(`Usage: \`${prefix}${cmd} system_name\` or \`${prefix}${cmd} system_name < 5000\` to specify the maximal supercruise distance`);          
                     return;
                 }
                 let parameters = args.join(' ').split(" < ");
@@ -406,7 +407,7 @@ module.exports = class EDRBot {
             case 'distance':
             case 'd':
                 if (args.length == 0) {
-                    channel.send("Usage: `!distance system_name` or `!d start_system > destination_system`");          
+                    channel.send(`Usage: \`${prefix}!distance system_name\` or \`${prefix}d start_system > destination_system\``);          
                     return;
                 }
                 let systems = args.join(' ').split(" > ");
@@ -450,18 +451,18 @@ module.exports = class EDRBot {
         }
     }
 
-    help (channel) {
-        let message = "Commands:\n\
-- **!help** to show help information, e.g. list of supported commands\n\
-- **!w cmdrname** or **!who cmdrname** to show a profile of cmdrname based on information from EDR and Inara.\n\
-- **!distance Lave** or **!d Wyrd > Lave** to get the distance between systems, e.g. Sol to Lave or Wyrd to Lave.\n\
-- **!matTraders Lave** or **!mt Wyrd < 2500** to get the closest material traders near Lave preferably within 2500 LS of the nav beacon.\n\
-- **!if Lave** to show nearby Interstellar Factors near Lave.\n\
-- **!version** to show EDR Discord Bot's version and changelog.\n\
-- **!ping** to confirm that the bot is online.\n\
-- **!uptime** to show how long the bot has been running uninterrupted.\n\n\
+    help (channel, prefix) {
+        let message = `Commands:\n\
+- **${prefix}help** to show help information, e.g. list of supported commands\n\
+- **${prefix}w cmdrname** or **${prefix}who cmdrname** to show a profile of cmdrname based on information from EDR and Inara.\n\
+- **${prefix}distance Lave** or **${prefix}d Wyrd > Lave** to get the distance between systems, e.g. Sol to Lave or Wyrd to Lave.\n\
+- **${prefix}matTraders Lave** or **${prefix}mt Wyrd < 2500** to get the closest material traders near Lave preferably within 2500 LS of the nav beacon.\n\
+- **${prefix}if Lave** to show nearby Interstellar Factors near Lave.\n\
+- **${prefix}version** to show EDR Discord Bot's version and changelog.\n\
+- **${prefix}ping** to confirm that the bot is online.\n\
+- **${prefix}uptime** to show how long the bot has been running uninterrupted.\n\n\
 Contact @LeKeno#8484 if you have any questions, feedback or in need of troubleshooting.\n\n\
-**PSA**: for performance and privacy reasons, please set a role on the EDR bot to restrict it to a dedicated channel.";
+**PSA**: for performance and privacy reasons, please set a role on the EDR bot to restrict it to a dedicated channel.`;
         channel.send(message);
     }
 
