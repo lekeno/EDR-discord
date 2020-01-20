@@ -198,7 +198,8 @@ module.exports = class EDRBot {
         }
 
         embed.addBlankField();
-        embed.addField("**Support EDR & EDSM**", `Install [EDR](${process.env.EDR_PLUGIN_URL}) to get the same info in-game and send intel.\n[Invite](${process.env.EDR_DISCORD_URL}) this bot to your own discord server.\n\nToken of appreciation\nLavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\n[Hutton mugs for EDSM](${process.env.EDSM_DONATION_URL})`);
+        embed.addField("**Support EDR & Inara**", ` - Lavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\n - Azure Milk for Inara: via [Paypal](${process.env.INARA_DONATION_URL})\n\n`, false);
+        embed.addField("**EDR Services**", ` - [Join](${process.env.EDR_DISCORD_JOIN_URL}) EDR's official [community](${process.env.EDR_DISCORD_URL}) discord server.\n - Install [EDR](${process.env.EDR_PLUGIN_URL}) to get in-game insights and send intel.\n - [Invite](${process.env.EDR_DISCORD_INVITE_BOT_URL}) this [bot](${process.env.EDR_DISCORD_BOT_URL}) to your own discord server.`, false);
         
         channel.send(`Material trading within ${radius} LY of ${utils.sanitize(poi)} (aiming for supercruise ≤ ${scDistance} LS)`, {embed});
         channel.stopTyping();
@@ -291,7 +292,7 @@ module.exports = class EDRBot {
         var cmd = args[0];
         args = args.splice(1);
         
-        let cmdlist = [ "uptime", "ping", "help", "version", "stats", "who", "w", "if", "distance", "d", "matTraders", "matTrader", "mat", "traders", "mt"];
+        let cmdlist = [ "uptime", "ping", "help", "version", "stats", "who", "w", "if", "distance", "d", "matTraders", "matTrader", "mat", "traders", "mt", process.env.ACL_COMMAND];
         if (!cmdlist.includes(cmd)) {
             return; // not a recognized command
         }
@@ -340,6 +341,39 @@ module.exports = class EDRBot {
             case 'stats':
                if (uid != process.env.OWNER_UID) return;    
                 this.stats();
+                break;
+
+            case process.env.ACL_COMMAND:
+                if (uid != process.env.OWNER_UID) return;  
+                if (message.channel.id != process.env.ADMIN_CHANNEL_ID) return;
+                if (message.guild.id != process.env.ADMIN_GUILD_ID) return;
+
+                if (args.length < 2) {
+                    return;
+                }
+
+                let action = args[0];
+                let entity = args[1];
+                let id = args[2];
+                let result = false;
+
+                if (action == "allow") {
+                    if (entity == "guild") {
+                        result = acl.authorizeGuild(id);
+                    }
+                } else if (action == "block") {
+                    if (entity == "guild") {
+                        result = acl.blockGuild(id);
+                    } else if (entity == "user") {
+                        result = acl.blockUser(id);
+                    }
+                }
+
+                if (result) {
+                    channel.send("Done!");
+                } else {
+                    channel.send("Nope!");
+                }
                 break;
             
             case 'who':
@@ -531,7 +565,8 @@ New feature(s): ${process.env.NEW_FEATURES}\n\n\
 
         embed.addField("**EDR Flight Plan**", eta);
         embed.addBlankField();
-        embed.addField("**Support EDR & EDSM**", `Install [EDR](${process.env.EDR_PLUGIN_URL}) to get the same info in-game and send intel.\n[Invite](${process.env.EDR_DISCORD_URL}) this bot to your own discord server.\n\nToken of appreciation\nLavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\n[Hutton mugs for EDSM](${process.env.EDSM_DONATION_URL})`);
+        embed.addField("**Support EDR & Inara**", ` - Lavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\n - Azure Milk for Inara: via [Paypal](${process.env.INARA_DONATION_URL})\n\n`, false);
+        embed.addField("**EDR Services**", ` - [Join](${process.env.EDR_DISCORD_JOIN_URL}) EDR's official [community](${process.env.EDR_DISCORD_URL}) discord server.\n - Install [EDR](${process.env.EDR_PLUGIN_URL}) to get in-game insights and send intel.\n - [Invite](${process.env.EDR_DISCORD_INVITE_BOT_URL}) this [bot](${process.env.EDR_DISCORD_BOT_URL}) to your own discord server.`, false);
 
         channel.send(`Distance info for ${utils.sanitize(srcSys)} to ${utils.sanitize(dstSys)}`, {embed});
     }

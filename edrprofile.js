@@ -124,11 +124,13 @@ module.exports = {
         embed.addField(section["name"], section["value"]);
       }
     
-      embed.addBlankField();
       if (response.body["patreon"]) {
+          embed.addBlankField();
           embed.addField("**EDR Patreon**", utils.sanitize(response.body["patreon"]), true);
       }
-      embed.addField("**Support EDR & Inara**", `Install [EDR](${process.env.EDR_PLUGIN_URL}) to get the same info in-game and send intel.\n[Invite](${process.env.EDR_DISCORD_URL}) this bot to your own discord server.\n\nToken of appreciation\nLavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\nAzure Milk for Inara: via [Paypal](${process.env.INARA_DONATION_URL})`, true);       
+      embed.addBlankField();
+      embed.addField("**Support EDR & Inara**", ` - Lavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\n - Azure Milk for Inara: via [Paypal](${process.env.INARA_DONATION_URL})\n\n`, false);
+      embed.addField("**EDR Services**", ` - [Join](${process.env.EDR_DISCORD_JOIN_URL}) EDR's official [community](${process.env.EDR_DISCORD_URL}) discord server.\n - Install [EDR](${process.env.EDR_PLUGIN_URL}) to get in-game insights and send intel.\n - [Invite](${process.env.EDR_DISCORD_INVITE_BOT_URL}) this [bot](${process.env.EDR_DISCORD_BOT_URL}) to your own discord server.`, false);
       channel.send(`Intel about ${utils.sanitize(response.body["name"])}`, {embed});
       return true;
     },
