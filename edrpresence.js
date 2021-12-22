@@ -76,7 +76,8 @@ module.exports = class EDRPresence {
     }
 
     async visualization() {
-        return [sparkline.shipsgraph(this.topShips, this.totalShips), await sparkline.presencegraph(this.months, this.days, this.hours)]
+        //return [sparkline.shipsgraph(this.topShips, this.totalShips), await sparkline.presencegraph(this.months, this.days, this.hours)]
+      return [sparkline.shipsgraph(this.topShips, this.totalShips)]
     }
 
     _orderlyMonthNo() {
