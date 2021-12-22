@@ -106,7 +106,7 @@ module.exports = class EDRBot {
   }
 
   async who(cmdrname, interaction, uid, attachmentAllowed) {
-    if (!acl.authorizedGuild(interaction.guildid)) {
+    if (!acl.authorizedGuild(interaction.guildId)) {
       audit.newguild(interaction.guild);
       await interaction.reply(
         "Thanks for your interest in EDR. You should get access to all the features shortly, i.e. up to a week or so. Ping @LeKeno#8484 if needed."
@@ -545,7 +545,7 @@ module.exports = class EDRBot {
       return false; // Not from a guild
     }
     let uid = interaction.user ? interaction.user.id : 0;
-
+    
     if (this.servedDiscords[guildname]) {
       this.servedDiscords[guildname]["msgs"] += 1;
     } else {

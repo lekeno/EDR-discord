@@ -215,7 +215,7 @@ var self = module.exports = {
     presencegraph: async function (months, days, hours) {
         const localImage = await loadImage("./img/presence-template.png");
         
-        var canvas = createCanvas(390, 550);
+        var canvas = createCanvas(390, 560);
         var ctx = canvas.getContext('2d');
         ctx.drawImage(localImage, 0, 0);
         
