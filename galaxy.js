@@ -68,7 +68,7 @@ module.exports = class Galaxy {
         let manTraderAlt = undefined;
       
         if (sys == undefined) return;
-        
+      
         sys['distance'] = 0;
         let traders = await this.systems.matTradersInSystem(sys);
         if (traders['raw'] && traders['raw']['station']) {

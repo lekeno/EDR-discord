@@ -31,10 +31,6 @@ module.exports = {
 
         var inaraLup = request(options).then(response => {
             let adjustedResponse = {"body": {}, "statusCode": response.statusCode};
-            if (response.body["header"] && response.body["header"]["eventStatus"] == 400) {
-                return {"body": {}, "statusCode": 400};
-            }
-
             if (!response.body["events"] || !response.body["events"][0] || response.body["events"][0]["eventStatus"] == 204 || !response.body["events"][0]["eventData"] || !response.body["events"][0]["eventData"]) {
                 return {"body": {}, "statusCode": 404};
             }

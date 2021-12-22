@@ -11,9 +11,7 @@ module.exports = class EDRLegal {
         var currentYear = new Date().getUTCFullYear();
         var currentMonth = new Date().getUTCMonth();
         var orderly = this._orderlyMonthNo();
-
         orderly.forEach(m => {
-            console.log(`Checking for ${m}`);
             if (!(m in legalStats))  {
                 this.clean.push(0);
                 this.wanted.push(0);
@@ -26,6 +24,7 @@ module.exports = class EDRLegal {
             if (wayTooOld || tooOld) {
                 this.clean.push(0);
                 this.wanted.push(0);
+                this.bounties.push(0);
                 return;
             }
 

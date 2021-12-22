@@ -1,31 +1,48 @@
-'use strict';
+"use strict";
 const discord = require("discord.js");
+const fs = require("fs");
+
+const { Client, Collection, Intents } = require("discord.js");
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+
 const edrbot = require("./edrbot");
+client.edrbot = new edrbot();
+
+client.commands = new Collection();
+const commandFiles = fs
+  .readdirSync("./commands")
+  .filter(file => file.endsWith(".js"));
+
+const localCommandFiles = fs
+  .readdirSync("./commands/local")
+  .filter(file => file.endsWith(".js"));
+
+
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  client.commands.set(command.data.name, command);
+}
+
+for (const file of localCommandFiles) {
+  const command = require(`./commands/local/${file}`);
+  client.commands.set(command.data.name, command);
+}
+
+const eventFiles = fs
+  .readdirSync("./events")
+  .filter(file => file.endsWith(".js"));
+
+for (const file of eventFiles) {
+  const event = require(`./events/${file}`);
+  if (event.once) {
+    client.once(event.name, (...args) => event.execute(...args));
+  } else {
+    client.on(event.name, (...args) => event.execute(...args));
+  }
+}
+
 const keepalive = require("./keepalive.js");
-const activities = require("./activities");
-
-const client = new discord.Client();
-const bot = new edrbot();
 const app = new keepalive();
-
 app.setup();
 
-process.on('uncaughtException', function (err) {
-  console.log(err);
-});
-
-client.on("ready", () => {
-  bot.init(client.guilds || []);
-  let activity = activities.random();
-  client.user.setActivity(activity["name"], { type: activity["type"]});
-});
-
-client.on("guildCreate", (guild) => {
-  bot.join(guild);
-});
-
-client.on("message", (message) => {
-  bot.process(message);
-});
-
-client.login(process.env.TOKEN).catch(console.err);
+client.login(process.env.TOKEN);

@@ -6,19 +6,19 @@ const presence = require("./edrpresence");
 const { createCanvas, Image } = require('canvas');
 
 module.exports = {
-    handleEDRResponse: function (response, date, channel, attachmentAllowed) {
+    handleEDRResponse: async function (response, date, defInteraction, attachmentAllowed) {
       if (response.statusCode == 404) {
-        channel.send("No info on file.\nPlease use the full in-game name.");
+        await defInteraction.editReply("No info on file.\nPlease use the full in-game name.");
         return true;
       }
     
       if (response.statusCode != 200) {
-        channel.send("Something went wrong :(");
+        await defInteraction.editReply("Something went wrong :(");
         console.error(`Something went wrong: (${response.statusCode})`);
         return false;
       }
     
-      const embed = new discord.RichEmbed();
+      const embed = new discord.MessageEmbed();
       embed.setTimestamp(date);
       embed.setFooter("Info provided by ED Recon", process.env.EDR_ICON);
     
@@ -56,9 +56,9 @@ module.exports = {
           embed.setAuthor("Inara", process.env.INARA_ICON, process.env.INARA_URL);
           embed.setDescription("Reach out to LeKeno#8484 if you know this commander's Inara profile.");
       }
-      embed.addBlankField();
+      embed.addField('\u200b', '\u200b');
     
-      if (response.body["karma"] || response.body["dkarma"]) {
+      if (response.body["karma"] != undefined || response.body["dkarma"] != undefined) {
         let dkarma = response.body["dkarma"];
         let skarma = response.body["karma"];
         let karma = skarma;
@@ -71,7 +71,7 @@ module.exports = {
         embed.setColor(this.karmaColor(this.readableKarma(karma)));
       }
     
-      if (response.body["alignmentHints"]) {
+      if (response.body["alignmentHints"] != undefined) {
           let section = this.alignmentSection(response.body["alignmentHints"]);
           if (section) {
             embed.addField(section["name"], section["value"]);
@@ -89,49 +89,56 @@ module.exports = {
       }
 
       if (response.body["presenceStats"]) {
-        let presencevizu = this.presencesection(response.body["presenceStats"]);
+        let presencevizu = await this.presencesection(response.body["presenceStats"]);
         if (presencevizu && attachmentAllowed) {
-          canvases.push(presencevizu);
+          if (Array.isArray(presencevizu)) {
+            canvases.push(...presencevizu);
+          }
+          else {
+            canvases.push(presencevizu);
+          }
         } else {
           embed.addField("**EDR Presence**", "EDR can now show graphs of ships a cmdr is most sighted in. This feature requires the 'attach files' permissions.");  
         }
       }
 
+      if (response.body["lastSighting"]  != undefined && response.body["lastSighting"]["system"] != undefined) {
+        let section = this.sightedSection(response.body["lastSighting"]);
+        embed.addField(section["name"], section["value"]);
+      }
+    
+      if (response.body["patreon"] != undefined) {
+          embed.addField('\u200b', '\u200b');
+          embed.addField("**EDR Patreon**", utils.sanitize(response.body["patreon"]), true);
+      }
+      embed.addField('\u200b', '\u200b');
+      embed.addField("**Support EDR & Inara**", ` - Lavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\n - Azure Milk for Inara: via [Paypal](${process.env.INARA_DONATION_URL})\n\n`, false);
+      embed.addField("**EDR Services**", ` - [Join](${process.env.EDR_DISCORD_JOIN_URL}) EDR's official [community](${process.env.EDR_DISCORD_URL}) discord server.\n - Install [EDR](${process.env.EDR_PLUGIN_URL}) to get in-game insights and send intel.\n - [Invite](${process.env.EDR_DISCORD_INVITE_BOT_URL}) this [bot](${process.env.EDR_DISCORD_BOT_URL}) to your own discord server.`, false);
+      
       if (canvases.length) {
+        embed.setImage('attachment://vizu.png');
+        
         let w = Math.max.apply(Math, canvases.map(function(o) { return o.width; }));
         let h = canvases.reduce(function(a, b) { return a + b.height; }, 0);
         var vizu = createCanvas(w, h);
         var ctx = vizu.getContext('2d');
-        ctx.fillStyle = 'rgb(247, 247, 247)';
+        ctx.fillStyle = 'rgb(255, 255, 255)';
         ctx.fillRect(0, 0, vizu.width, vizu.height);
         let dh = 0;
         for (var i in canvases) {
           var img = new Image;
-          var canvas = canvases[i]
+          var canvas = canvases[i];
           img.src = canvas.toBuffer();
           ctx.drawImage(img, 0, dh);
           dh += canvas.height;
         }
         
-        const attachment = new discord.Attachment(vizu.toBuffer(), "vizu.png");
-        embed.attachFile(attachment);
-        embed.setImage('attachment://vizu.png');
+        //await new Promise(resolve => setTimeout(resolve, 3000));
+        //embed.attachFiles([attachment]);
+        await defInteraction.editReply({content: `Intel about ${utils.sanitize(response.body["name"])}`, embeds: [embed], files: [new discord.MessageAttachment(vizu.toBuffer(), "vizu.png")]});
+      } else {
+        await defInteraction.editReply({content: `Intel about ${utils.sanitize(response.body["name"])}`, embeds: [embed]});
       }
-
-    
-      if (response.body["lastSighting"] && response.body["lastSighting"]["system"]) {
-        let section = this.sightedSection(response.body["lastSighting"]);
-        embed.addField(section["name"], section["value"]);
-      }
-    
-      if (response.body["patreon"]) {
-          embed.addBlankField();
-          embed.addField("**EDR Patreon**", utils.sanitize(response.body["patreon"]), true);
-      }
-      embed.addBlankField();
-      embed.addField("**Support EDR & Inara**", ` - Lavian Brandy for EDR: via [Patreon](${process.env.EDR_PATREON_URL}) or [Paypal](${process.env.EDR_PAYPAL_URL})\n - Azure Milk for Inara: via [Paypal](${process.env.INARA_DONATION_URL})\n\n`, false);
-      embed.addField("**EDR Services**", ` - [Join](${process.env.EDR_DISCORD_JOIN_URL}) EDR's official [community](${process.env.EDR_DISCORD_URL}) discord server.\n - Install [EDR](${process.env.EDR_PLUGIN_URL}) to get in-game insights and send intel.\n - [Invite](${process.env.EDR_DISCORD_INVITE_BOT_URL}) this [bot](${process.env.EDR_DISCORD_BOT_URL}) to your own discord server.`, false);
-      channel.send(`Intel about ${utils.sanitize(response.body["name"])}`, {embed});
       return true;
     },
   
@@ -140,9 +147,9 @@ module.exports = {
       return edrlegal.visualization();
     },
 
-    presencesection: function (presenceStats) {
+    presencesection: async function (presenceStats) {
       var edrpresence = new presence(presenceStats);
-      return edrpresence.visualization();
+      return await edrpresence.visualization();
     },
 
     alignmentSection: function (alignment) {
