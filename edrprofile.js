@@ -116,8 +116,6 @@ module.exports = {
       embed.addField("**EDR Services**", ` - [Join](${process.env.EDR_DISCORD_JOIN_URL}) EDR's official [community](${process.env.EDR_DISCORD_URL}) discord server.\n - Install [EDR](${process.env.EDR_PLUGIN_URL}) to get in-game insights and send intel.\n - [Invite](${process.env.EDR_DISCORD_INVITE_BOT_URL}) this [bot](${process.env.EDR_DISCORD_BOT_URL}) to your own discord server.`, false);
       
       if (canvases.length) {
-        embed.setImage('attachment://vizu.png');
-        
         let w = Math.max.apply(Math, canvases.map(function(o) { return o.width; }));
         let h = canvases.reduce(function(a, b) { return a + b.height; }, 0);
         var vizu = createCanvas(w, h);
@@ -133,9 +131,15 @@ module.exports = {
           dh += canvas.height;
         }
         
+        const buf = vizu.toBuffer();
+        const rngSuffix = Math.round(Math.random() * 100000,0);
+        const name = `vizu${rngSuffix}.png`;
+        const attachment = new discord.MessageAttachment(buf, name);
+        embed.setImage(`attachment://${name}`);
+        
         //await new Promise(resolve => setTimeout(resolve, 3000));
         //embed.attachFiles([attachment]);
-        await defInteraction.editReply({content: `Intel about ${utils.sanitize(response.body["name"])}`, embeds: [embed], files: [new discord.MessageAttachment(vizu.toBuffer(), "vizu.png")]});
+        await defInteraction.editReply({content: `Intel about ${utils.sanitize(response.body["name"])}`, embeds: [embed], files: [attachment]});
       } else {
         await defInteraction.editReply({content: `Intel about ${utils.sanitize(response.body["name"])}`, embeds: [embed]});
       }
