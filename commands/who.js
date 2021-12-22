@@ -18,9 +18,7 @@ module.exports = {
 
     let cmdr = interaction.options.getString("cmdr");
     let uid = interaction.member ? interaction.member.id : 0;
-    let attachmentAllowed = interaction.channel
-      .permissionsFor(interaction.guild.me)
-      .has("ATTACH_FILES");
+    let attachmentAllowed = true; // granted via slash commands
     await interaction.client.edrbot.who(
       cmdr,
       interaction,
