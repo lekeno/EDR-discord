@@ -19,6 +19,7 @@ module.exports = {
       }
     
       const embed = new discord.MessageEmbed();
+      var files = [];
       embed.setTimestamp(date);
       embed.setFooter("Info provided by ED Recon", process.env.EDR_ICON);
     
@@ -30,7 +31,11 @@ module.exports = {
           if (response.body["inaraURL"]) {
             embed.setURL(`${response.body["inaraURL"]}`);
           }
-          embed.setThumbnail(response.body["inaraAvatar"]);
+          var rngSuffix = Math.round(Math.random() * 100000,0);
+          const inaraAvatar = `inara${rngSuffix}.png`;
+          const attachmentInara = new discord.MessageAttachment(response.body["inaraAvatar"], inaraAvatar);
+          files.push(attachmentInara);
+          embed.setThumbnail(`attachment://${inaraAvatar}`);
     
           if (response.body["squadronName"]) {
               description += `**Wing**: ${utils.sanitize(response.body["squadronRank"])} @ [${utils.sanitize(response.body["squadronName"])}](${utils.sanitize(response.body["squadronURL"])})\n`;
@@ -132,14 +137,15 @@ module.exports = {
         }
         
         const buf = vizu.toBuffer();
-        const rngSuffix = Math.round(Math.random() * 100000,0);
-        const name = `vizu${rngSuffix}.png`;
-        const attachment = new discord.MessageAttachment(buf, name);
+        rngSuffix = Math.round(Math.random() * 100000,0);
+        const name = `edrVizu${rngSuffix}.png`;
+        const attachmentVizu = new discord.MessageAttachment(buf, name);
         embed.setImage(`attachment://${name}`);
+        files.push(attachmentVizu);
         
         //await new Promise(resolve => setTimeout(resolve, 3000));
         //embed.attachFiles([attachment]);
-        await defInteraction.editReply({content: `Intel about ${utils.sanitize(response.body["name"])}`, embeds: [embed], files: [attachment]});
+        await defInteraction.editReply({content: `Intel about ${utils.sanitize(response.body["name"])}`, embeds: [embed], files: files});
       } else {
         await defInteraction.editReply({content: `Intel about ${utils.sanitize(response.body["name"])}`, embeds: [embed]});
       }
