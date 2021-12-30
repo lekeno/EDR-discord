@@ -6,7 +6,7 @@ module.exports = {
     lookup: async function (cmdr_name) {
         var cmdr_profile_payload = {
             "header": {
-                "appName": process.env.APP_NAME,
+                "appName": process.env.INARA_APP_NAME,
                 "appVersion": process.env.VERSION,
                 "isDeveloped": false,
                 "APIkey": process.env.INARA_API_KEY,
